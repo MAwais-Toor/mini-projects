@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI ChatBot TTS</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
 
 
     <style>
@@ -110,10 +110,77 @@
         textarea::placeholder {
             color: #cbd5e1;
         }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                height: 34px;
+            }
+
+            50% {
+                height: 4px;
+            }
+        }
+
+        .eye.blink {
+            animation: blink 0.3s ease-in-out;
+        }
+
+        @keyframes rainbow-border-blur {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            100% {
+                background-position: 400% 50%;
+            }
+        }
+
+        .border-gradient-blur {
+            border-style: solid;
+            border-width: 6px;
+            border-image-slice: 1;
+            border-image-source: linear-gradient(90deg,
+                    #ff00cc,
+                    #3333ff,
+                    #00f0ff,
+                    #00ff88,
+                    #ff9900,
+                    #ff00cc);
+            background: linear-gradient(270deg,
+                    #ff00cc,
+                    #3333ff,
+                    #00f0ff,
+                    #00ff88,
+                    #ff9900,
+                    #ff00cc);
+            background-size: 400% 400%;
+            animation: rainbow-border-blur 6s linear infinite;
+            border-radius: 1rem;
+            filter: blur(6px);
+            pointer-events: none;
+
+            mask:
+                linear-gradient(#000 0 0) content-box,
+                linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
     </style>
 </head>
 
 <body class="min-h-screen flex items-center justify-center p-4">
+    <!-- Rainbow Blurred Border -->
+    <div id="speaking-border" class="fixed inset-0 z-50 pointer-events-none hidden">
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-full h-full border-[6px] rounded-2xl border-gradient-blur"></div>
+        </div>
+    </div>
+
+
+
+
 
     <div class="w-full max-w-md space-y-8 text-center">
         <!-- Robot Face -->
@@ -134,77 +201,163 @@
 
         <!-- Glass Input Area -->
         <div class="glass-panel rounded-2xl p-6">
-            <h1 class="text-2xl font-bold mb-4 tracking-wide text-cyan-300">🤖 AI ChatBot</h1>
+            <h1 class="text-2xl font-bold mb-4 tracking-wide text-cyan-300">Chatbot with Text-to-Speech</h1>
             <textarea id="text-input" placeholder="Type something for me to say..." rows="4"
-                class="w-full p-3 text-black bg-cyan-400/5 border border-cyan-400 rounded-lg resize-none placeholder:text-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-500 transition"></textarea>
+                class="w-full p-3 text-red-500 bg-cyan-400/5 border border-cyan-400 rounded-lg resize-none placeholder:text-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-500 transition"></textarea>
 
 
-            <div class="flex justify-center gap-4 mt-5">
+            <div class="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-4 mt-5 w-full">
+
+
+
                 <!-- Speak Button -->
-<button id="speak-btn"
-  class="px-5 py-2 rounded-xl font-semibold text-white bg-cyan-500 hover:bg-cyan-600 active:scale-95 transition-all shadow-md flex items-center gap-2">
-  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5h2v14h-2zM5 9h2v6H5zM17 7h2v10h-2z" />
-  </svg>
-  Speak
-</button>
-
-<!-- Stop Button -->
-<button id="stop-btn"
-  class="px-5 py-2 rounded-xl font-semibold text-white bg-red-500 hover:bg-red-600 active:scale-95 transition-all shadow-md flex items-center gap-2">
-  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M6 6h12v12H6z"/>
-  </svg>
-  Stop
-</button>
+                <button id="speak-btn"
+                    class="min-w-[140px] w-full sm:w-auto px-4 py-2 rounded-xl font-semibold text-white bg-cyan-500 hover:bg-cyan-600 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 text-sm sm:text-base">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 5h2v14h-2zM5 9h2v6H5zM17 7h2v10h-2z" />
+                    </svg>
+                    Speak
+                </button>
 
 
-                <p class="text-sm text-cyan-300">Press the button and start talking!</p>
+                <!-- Stop Button -->
+                <button id="stop-btn"
+                    class="min-w-[140px] w-full sm:w-auto px-4 py-2 rounded-xl font-semibold text-white bg-red-500 hover:bg-red-600 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 text-sm sm:text-base">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 6h12v12H6z" />
+                    </svg>
+                    Stop
+                </button>
+
+                <!-- Mic Input Button -->
+                <button id="mic-btn"
+                    class="min-w-[140px] w-full sm:w-auto px-4 py-2 rounded-xl font-semibold text-white bg-green-500 hover:bg-green-600 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 text-sm sm:text-base">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 1a3 3 0 013 3v8a3 3 0 01-6 0V4a3 3 0 013-3zm6 8v2a6 6 0 01-12 0V9m6 9v5m-4 0h8" />
+                    </svg>
+
+                    Microphone
+                </button>
             </div>
+
+
+            <br>
+
+            <div id="typing-indicator" class="flex items-center justify-center gap-2 text-sm text-cyan-400 mt-3 hidden">
+                <!-- Speaker SVG Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 animate-pulse" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 010 7.07m2.83-9.9a9 9 0 010 12.73" />
+                </svg>
+                <span>Bot is speaking...</span>
+            </div>
+            <p class="text-sm text-cyan-300">Press the button and start talking!</p>
+
         </div>
+    </div>
     </div>
 
     <script>
         const speakBtn = document.getElementById("speak-btn");
         const stopBtn = document.getElementById("stop-btn");
+        const micBtn = document.getElementById("mic-btn");
         const textInput = document.getElementById("text-input");
         const smile = document.getElementById("smile");
         const chatwave = document.getElementById("chatwave");
+        const typingIndicator = document.getElementById("typing-indicator");
 
         let utterance;
         let hasGreeted = false;
 
+        // 🟢 Blinking eyes (optional from earlier)
+        function blinkEyes() {
+            const eyes = document.querySelectorAll(".eye");
+            eyes.forEach(eye => eye.classList.add("blink"));
+            setTimeout(() => eyes.forEach(eye => eye.classList.remove("blink")), 300);
+        }
+        setInterval(() => setTimeout(blinkEyes, 4000 + Math.random() * 3000), 5000);
+
         function showChatwave(state) {
             smile.classList.toggle("hidden", state);
             chatwave.classList.toggle("hidden", !state);
+            typingIndicator.classList.toggle("hidden", !state); // if you're using that too
         }
 
         function speakText(text) {
             if (!text) return;
             utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = "en-US";
-            showChatwave(true);
-            utterance.onend = () => showChatwave(false);
+
+            showChatwave(true); // 👈 Show bars
+
+            utterance.onend = () => showChatwave(false); // 👈 Hide bars when done
             speechSynthesis.speak(utterance);
         }
 
+        // Speak typed input
         speakBtn.addEventListener("click", () => {
             const text = textInput.value.trim();
             speakText(text);
         });
 
+        // Stop speaking
         stopBtn.addEventListener("click", () => {
             speechSynthesis.cancel();
             showChatwave(false);
         });
 
-        // Greet on first user click
+        // Greet on first click
         window.addEventListener("click", () => {
             if (!hasGreeted) {
-                speakText("Hey! I’m made by Muhammad Awais. How can I help you?");
+                speakText("Hey! I’m a chatbot developed by Muhammad Awais. What can I do for you?");
                 hasGreeted = true;
             }
         }, { once: true });
+
+        // 🎤 Voice Input (Web Speech API)
+        micBtn.addEventListener("click", () => {
+            if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
+                alert("Your browser does not support voice input.");
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = "en-US";
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.start();
+            micBtn.innerText = "🎙️ Listening...";
+
+            recognition.onresult = (e) => {
+                const voiceText = e.results[0][0].transcript;
+                textInput.value = voiceText;
+                speakText(voiceText);
+                micBtn.innerText = "Speak with Mic";
+            };
+
+            recognition.onerror = () => {
+                micBtn.innerText = "Speak with Mic";
+                alert("Voice recognition failed. Try again.");
+            };
+        });
+        const borderEffect = document.getElementById("speaking-border");
+
+        function showChatwave(state) {
+            smile.classList.toggle("hidden", state);
+            chatwave.classList.toggle("hidden", !state);
+            typingIndicator.classList.toggle("hidden", !state);
+            borderEffect.classList.toggle("hidden", !state); // Show/hide blurred rainbow border
+        }
+
+
+
     </script>
 </body>
 
