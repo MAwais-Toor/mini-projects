@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" class="text-white">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI ChatBot TTS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+
+
+    <style>
+        body {
+            background: radial-gradient(ellipse at center, #0f172a 0%, #0e0f1a 100%);
+            background-image:
+                radial-gradient(circle at 20% 30%, #00f0ff22 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, #00ffee11 0%, transparent 40%);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .face {
+            background: linear-gradient(145deg, #10141f, #0c111a);
+            border-radius: 2rem;
+            width: 220px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 0 40px #00f0ff33, inset 0 0 15px #000;
+            transition: transform 0.4s ease, box-shadow 0.3s;
+        }
+
+        .face:hover {
+            transform: rotateX(5deg) rotateY(-5deg);
+        }
+
+        .eye {
+            width: 14px;
+            height: 34px;
+            background: #00f0ff;
+            border-radius: 50px;
+            margin: 0 18px;
+            box-shadow: 0 0 15px #00f0ffaa;
+        }
+
+        .mouth-smile {
+            width: 40px;
+            height: 10px;
+            background: #00ffee;
+            border-radius: 20px;
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 6px #00f0ff88;
+        }
+
+        .chatwave {
+            display: flex;
+            gap: 4px;
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .bar {
+            width: 6px;
+            height: 12px;
+            background: #00f0ff;
+            border-radius: 4px;
+            animation: pulse 0.7s infinite ease-in-out;
+            box-shadow: 0 0 5px #00f0ffaa;
+        }
+
+        .bar:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .bar:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .bar:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scaleY(1);
+            }
+
+            50% {
+                transform: scaleY(2);
+            }
+        }
+
+        .glass-panel {
+            background: rgba(0, 247, 255, 0.04);
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            backdrop-filter: blur(18px);
+            box-shadow: 0 20px 40px rgba(0, 255, 255, 0.05);
+        }
+
+
+
+        textarea::placeholder {
+            color: #cbd5e1;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md space-y-8 text-center">
+        <!-- Robot Face -->
+        <div id="robot-face" class="face mx-auto">
+            <div class="eye"></div>
+            <div class="eye"></div>
+
+            <!-- Idle smile -->
+            <div id="smile" class="mouth-smile"></div>
+
+            <!-- Chatwave animation -->
+            <div id="chatwave" class="chatwave hidden">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+
+        <!-- Glass Input Area -->
+        <div class="glass-panel rounded-2xl p-6">
+            <h1 class="text-2xl font-bold mb-4 tracking-wide text-cyan-300">🤖 AI ChatBot</h1>
+            <textarea id="text-input" placeholder="Type something for me to say..." rows="4"
+                class="w-full p-3 text-black bg-cyan-400/5 border border-cyan-400 rounded-lg resize-none placeholder:text-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-500 transition"></textarea>
+
+
+            <div class="flex justify-center gap-4 mt-5">
+                <!-- Speak Button -->
+<button id="speak-btn"
+  class="px-5 py-2 rounded-xl font-semibold text-white bg-cyan-500 hover:bg-cyan-600 active:scale-95 transition-all shadow-md flex items-center gap-2">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5h2v14h-2zM5 9h2v6H5zM17 7h2v10h-2z" />
+  </svg>
+  Speak
+</button>
+
+<!-- Stop Button -->
+<button id="stop-btn"
+  class="px-5 py-2 rounded-xl font-semibold text-white bg-red-500 hover:bg-red-600 active:scale-95 transition-all shadow-md flex items-center gap-2">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M6 6h12v12H6z"/>
+  </svg>
+  Stop
+</button>
+
+
+                <p class="text-sm text-cyan-300">Press the button and start talking!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const speakBtn = document.getElementById("speak-btn");
+        const stopBtn = document.getElementById("stop-btn");
+        const textInput = document.getElementById("text-input");
+        const smile = document.getElementById("smile");
+        const chatwave = document.getElementById("chatwave");
+
+        let utterance;
+        let hasGreeted = false;
+
+        function showChatwave(state) {
+            smile.classList.toggle("hidden", state);
+            chatwave.classList.toggle("hidden", !state);
+        }
+
+        function speakText(text) {
+            if (!text) return;
+            utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = "en-US";
+            showChatwave(true);
+            utterance.onend = () => showChatwave(false);
+            speechSynthesis.speak(utterance);
+        }
+
+        speakBtn.addEventListener("click", () => {
+            const text = textInput.value.trim();
+            speakText(text);
+        });
+
+        stopBtn.addEventListener("click", () => {
+            speechSynthesis.cancel();
+            showChatwave(false);
+        });
+
+        // Greet on first user click
+        window.addEventListener("click", () => {
+            if (!hasGreeted) {
+                speakText("Hey! I’m made by Muhammad Awais. How can I help you?");
+                hasGreeted = true;
+            }
+        }, { once: true });
+    </script>
+</body>
+
+</html>
