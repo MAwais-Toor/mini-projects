@@ -1,74 +1,113 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QR Code Generator</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-    <style>
-      .glass {
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+<html lang="en" class="bg-black">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smartwatch Clock</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .fade-in {
+      animation: fadeIn 1s ease-in-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
       }
-    </style>
-  </head>
-  <body class="min-h-screen bg-gradient-to-br from-indigo-100 via-sky-100 to-white flex items-center justify-center p-4">
-    <div class="w-full max-w-md p-6 rounded-2xl glass shadow-2xl">
-      <h1 class="text-3xl font-bold text-center text-gray-800 mb-6 tracking-wide">🔳 QR Code Generator</h1>
 
-      <div class="flex gap-2">
-        <input
-          id="qrInput"
-          type="text"
-          placeholder="Enter text or URL..."
-          class="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-gray-700"
-        />
-        <button
-          onclick="generateQRCode()"
-          class="px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all"
-        >
-          Generate
-        </button>
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen bg-black">
+
+  <!-- Watch Wrapper -->
+  <div class="relative w-[400px] sm:w-[400px] md:w-[500px] lg:w-[400px] xl:w-[460px] aspect-[3/5]">
+
+    <!-- Watch Frame -->
+    <img src="./img/watch.png" alt="Smartwatch Frame"
+      class="absolute inset-0 w-full h-full object-contain z-10 pointer-events-none" />
+
+    <!-- Watch Screen -->
+    <div id="screen" class="absolute top-[22%] left-[13%] w-[74%] h-[56%]
+                flex flex-col items-center justify-center
+                text-white bg-black rounded-xl z-0 overflow-hidden">
+
+      <!-- Power Icon Button -->
+      <button id="powerBtn" onclick="powerOn()" class="focus:outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-500 hover:text-gray-400 transition"
+          fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v10m6.364-6.364a9 9 0 11-12.728 0" />
+        </svg>
+      </button>
+
+      <!-- Boot Logo (Initially Hidden) -->
+      <div id="bootLogo" class="hidden flex flex-col items-center justify-center w-full h-full">
+        <img src="./img/logo.png" alt="Logo"
+          class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 object-contain animate-pulse transition-all duration-300" />
+
       </div>
 
-      <div class="mt-8 flex flex-col items-center">
-        <canvas id="qrCanvas" class="rounded-lg shadow-md"></canvas>
-        <button
-          onclick="downloadQR()"
-          class="mt-4 text-sm text-indigo-500 hover:underline hover:text-indigo-700"
-        >
-          Download QR Code
-        </button>
+      <!-- Modern Watch Display -->
+      <div id="watchData" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center px-2">
+
+        <div id="time" class="text-4xl sm:text-5xl md:text-6xl font-mono font-semibold tracking-wide leading-snug">
+          <!-- Time will be inserted here -->
+        </div>
+        <div id="date" class="text-sm sm:text-base text-gray-300 font-light mt-1 tracking-wide uppercase">
+          <!-- Date will be inserted here -->
+        </div>
       </div>
+
     </div>
+  </div>
 
-    <script>
-      function generateQRCode() {
-        const text = document.getElementById("qrInput").value.trim();
-        const canvas = document.getElementById("qrCanvas");
+  <!-- Audio Element (Hidden) -->
+  <audio id="bootSound" src="./audio/poweron.mp3" preload="auto"></audio>
 
-        if (!text) {
-          alert("Please enter some text or a URL");
-          return;
-        }
 
-        QRCode.toCanvas(canvas, text, { width: 200 }, function (error) {
-          if (error) console.error(error);
-        });
-      }
+  <!-- Script -->
+  <script>
+    function updateTime() {
+      const now = new Date();
+      const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const date = now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+      document.getElementById('time').textContent = time;
+      document.getElementById('date').textContent = date;
+    }
 
-      function downloadQR() {
-        const canvas = document.getElementById("qrCanvas");
-        const link = document.createElement("a");
-        link.download = "qr-code.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      }
-    </script>
-  </body>
+    function powerOn() {
+      const btn = document.getElementById('powerBtn');
+      const logo = document.getElementById('bootLogo');
+      const watchData = document.getElementById('watchData');
+      const sound = document.getElementById('bootSound');
+
+      btn.classList.add('hidden');
+      logo.classList.remove('hidden');
+      logo.classList.add('fade-in');
+
+      // 🔊 Play boot sound
+      sound.currentTime = 0;
+      sound.play().catch(e => {
+        console.log("Autoplay blocked, user interaction required.");
+      });
+
+      // Show time after delay
+      setTimeout(() => {
+        logo.classList.add('hidden');
+        watchData.classList.remove('hidden');
+        watchData.classList.add('fade-in');
+        updateTime();
+        setInterval(updateTime, 1000);
+      }, 2500);
+    }
+  </script>
+
+
+</body>
+
 </html>
