@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MATsWatch - By Muhammad Awais Toor</title>
+  <link rel="icon" href="./img/favicon.png" type="image/png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .fade-in {
@@ -105,32 +106,30 @@
 
       <!-- Name Input Screen (Modern Minimal Style) -->
       <div id="nameInputSection"
-        class="hidden absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4 py-6 z-10 bg-black bg-opacity-80 backdrop-blur-md rounded-xl">
-
-        <!-- Heading -->
-        <h2 class="text-base sm:text-lg md:text-xl font-semibold mb-3 tracking-wide text-white/90">Enter Your Name</h2>
+        class="hidden absolute inset-0 flex flex-col items-center justify-center px-4 py-6 z-10 bg-black bg-opacity-80 backdrop-blur-md rounded-xl">
 
         <!-- Input Field -->
         <input id="userNameInput" type="text"
-          class="w-[60%] max-w-[240px] px-4 py-2 rounded-md bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none text-white placeholder-gray-400 text-sm sm:text-base text-center transition duration-300"
-          placeholder="Your name" />
+          class="w-[60%] max-w-xs px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none text-white placeholder-gray-400 text-base text-center shadow-md transition duration-300"
+          placeholder="Enter Your Name" />
 
         <!-- OK Button -->
         <button onclick="submitName()"
-          class="mt-4 px-5 py-2 rounded-md bg-blue-600 hover:bg-blue-500 active:scale-95 transition-all duration-200 text-sm font-semibold shadow-md tracking-wide">
-          OK
+          class="mt-5 px-6 py-2.5 rounded-lg bg-gray-800 hover:bg-gray-700 active:scale-95 transition-all duration-200 text-sm font-medium shadow-lg">
+            CONTINUE
         </button>
       </div>
 
 
       <!-- Final Personalized Welcome Message (Fixed for Screen Containment) -->
       <div id="finalWelcome"
-        class="hidden absolute inset-0 flex items-center justify-center text-center px-4 py-2 z-10 bg-black bg-opacity-70 rounded-xl backdrop-blur-sm">
+        class="hidden absolute inset-0 flex items-center justify-center px-4 py-2 z-10 bg-black bg-opacity-70 backdrop-blur-sm rounded-xl">
 
         <div id="finalWelcomeText"
-          class="opacity-0 w-full max-w-full text-white text-sm sm:text-base md:text-lg font-semibold break-words whitespace-pre-wrap leading-tight tracking-wide overflow-hidden">
+          class="opacity-0 w-[80%] sm:w-[50%] md:w-[50%] lg:w-[50%] text-white text-base sm:text-lg md:text-xl font-semibold text-center break-words whitespace-pre-wrap leading-snug tracking-wide overflow-hidden">
         </div>
       </div>
+
 
 
 
@@ -143,12 +142,12 @@
         <div id="date" class="text-sm sm:text-base text-gray-300 font-light mt-1 tracking-wide uppercase">
           <!-- Date will be inserted here -->
         </div>
-        
+
       </div>
 
     </div>
   </div>
-  
+
 
   <!-- Audio Element (Hidden) -->
   <audio id="bootSound" src="./audio/poweron.mp3" preload="auto"></audio>
@@ -189,7 +188,13 @@
       }, 2500);
 
       function showWelcomeMessages() {
-        const messages = ["Hello", "I'm Designed by", "Muhammad Awais"];
+        const messages = [
+          "Waking Up...",
+          "Powered by MATsHub",
+          "Crafted by Awais"
+        ];
+
+
         let index = 0;
 
         welcomeMsg.classList.remove('hidden');
