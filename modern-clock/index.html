@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-black">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smartwatch Clock</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .fade-in {
+      animation: fadeIn 1s ease-in-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* welcome text */
+    .fade-out {
+      animation: fadeOut 1s ease-in-out forwards;
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
+    }
+
+    /* user name */
+    .fade-in {
+      animation: fadeIn 1s ease-in-out forwards;
+    }
+
+    .fade-out {
+      animation: fadeOut 1s ease-in-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen bg-black">
+
+  <!-- Watch Wrapper -->
+  <div class="relative w-[400px] sm:w-[400px] md:w-[500px] lg:w-[400px] xl:w-[460px] aspect-[3/5]">
+
+    <!-- Watch Frame -->
+    <img src="./img/watch.png" alt="Smartwatch Frame"
+      class="absolute inset-0 w-full h-full object-contain z-10 pointer-events-none" />
+
+    <!-- Watch Screen -->
+    <div id="screen" class="absolute top-[22%] left-[13%] w-[74%] h-[56%]
+                flex flex-col items-center justify-center
+                text-white bg-black rounded-xl z-0 overflow-hidden">
+
+      <!-- Power Icon Button -->
+      <button id="powerBtn" onclick="powerOn()" class="focus:outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-500 hover:text-gray-400 transition"
+          fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v10m6.364-6.364a9 9 0 11-12.728 0" />
+        </svg>
+      </button>
+
+      <!-- Boot Logo (Initially Hidden) -->
+      <div id="bootLogo" class="hidden flex flex-col items-center justify-center w-full h-full">
+        <img src="./img/logo.png" alt="Logo"
+          class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 object-contain animate-pulse transition-all duration-300" />
+      </div>
+      <!-- Welcome Message (Fully Fixed for Overflow) -->
+      <div id="welcomeMsg"
+        class="hidden absolute inset-0 flex items-center justify-center text-center text-white px-4 py-2 z-10">
+
+        <div id="welcomeText"
+          class="opacity-0 w-full max-w-full text-sm sm:text-base md:text-lg font-medium leading-snug break-words whitespace-pre-wrap overflow-hidden">
+        </div>
+      </div>
+
+      <!-- Name Input Screen (Modern Minimal Style) -->
+      <div id="nameInputSection"
+        class="hidden absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4 py-6 z-10 bg-black bg-opacity-80 backdrop-blur-md rounded-xl">
+
+        <!-- Heading -->
+        <h2 class="text-base sm:text-lg md:text-xl font-semibold mb-3 tracking-wide text-white/90">Enter Your Name</h2>
+
+        <!-- Input Field -->
+        <input id="userNameInput" type="text"
+          class="w-[60%] max-w-[240px] px-4 py-2 rounded-md bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none text-white placeholder-gray-400 text-sm sm:text-base text-center transition duration-300"
+          placeholder="Your name" />
+
+        <!-- OK Button -->
+        <button onclick="submitName()"
+          class="mt-4 px-5 py-2 rounded-md bg-blue-600 hover:bg-blue-500 active:scale-95 transition-all duration-200 text-sm font-semibold shadow-md tracking-wide">
+          OK
+        </button>
+      </div>
+
+
+      <!-- Final Personalized Welcome Message (Fixed for Screen Containment) -->
+      <div id="finalWelcome"
+        class="hidden absolute inset-0 flex items-center justify-center text-center px-4 py-2 z-10 bg-black bg-opacity-70 rounded-xl backdrop-blur-sm">
+
+        <div id="finalWelcomeText"
+          class="opacity-0 w-full max-w-full text-white text-sm sm:text-base md:text-lg font-semibold break-words whitespace-pre-wrap leading-tight tracking-wide overflow-hidden">
+        </div>
+      </div>
+
+
+
+      <!-- Modern Watch Display -->
+      <div id="watchData" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center px-2">
+
+        <div id="time" class="text-4xl sm:text-5xl md:text-6xl font-mono font-semibold tracking-wide leading-snug">
+          <!-- Time will be inserted here -->
+        </div>
+        <div id="date" class="text-sm sm:text-base text-gray-300 font-light mt-1 tracking-wide uppercase">
+          <!-- Date will be inserted here -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+  
+
+  <!-- Audio Element (Hidden) -->
+  <audio id="bootSound" src="./audio/poweron.mp3" preload="auto"></audio>
+
+
+  <!-- Script -->
+  <script>
+    function updateTime() {
+      const now = new Date();
+      const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const date = now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+      document.getElementById('time').textContent = time;
+      document.getElementById('date').textContent = date;
+    }
+
+    function powerOn() {
+      const btn = document.getElementById('powerBtn');
+      const logo = document.getElementById('bootLogo');
+      const watchData = document.getElementById('watchData');
+      const sound = document.getElementById('bootSound');
+      const welcomeMsg = document.getElementById('welcomeMsg');
+      const welcomeText = document.getElementById('welcomeText');
+
+      const nameInputSection = document.getElementById('nameInputSection');
+
+      btn.classList.add('hidden');
+      logo.classList.remove('hidden');
+      logo.classList.add('fade-in');
+
+      // Play boot sound
+      sound.currentTime = 0;
+      sound.play().catch(e => console.log("Autoplay blocked"));
+
+      // After logo, show welcome sequence
+      setTimeout(() => {
+        logo.classList.add('hidden');
+        showWelcomeMessages();
+      }, 2500);
+
+      function showWelcomeMessages() {
+        const messages = ["Hello", "I'm Designed by", "Muhammad Awais"];
+        let index = 0;
+
+        welcomeMsg.classList.remove('hidden');
+
+        const showNext = () => {
+          if (index >= messages.length) {
+            welcomeMsg.classList.add('hidden');
+            nameInputSection.classList.remove('hidden');
+            return;
+          }
+
+          welcomeText.textContent = messages[index];
+          welcomeText.classList.remove('fade-out');
+          welcomeText.classList.add('fade-in');
+          welcomeText.classList.remove('opacity-0');
+
+          setTimeout(() => {
+            welcomeText.classList.remove('fade-in');
+            welcomeText.classList.add('fade-out');
+
+            setTimeout(() => {
+              welcomeText.classList.add('opacity-0');
+              index++;
+              showNext();
+            }, 1000);
+          }, 1500);
+        };
+
+        showNext();
+      }
+    }
+
+    function submitName() {
+      const input = document.getElementById('userNameInput');
+      const name = input.value.trim();
+
+      if (!name) {
+        alert("Please enter your name.");
+        return;
+      }
+
+      document.getElementById('nameInputSection').classList.add('hidden');
+      const finalWelcome = document.getElementById('finalWelcome');
+      const finalWelcomeText = document.getElementById('finalWelcomeText');
+
+      finalWelcome.classList.remove('hidden');
+      finalWelcomeText.textContent = `Welcome dear ${name}!`;
+      finalWelcomeText.classList.remove('fade-out');
+      finalWelcomeText.classList.add('fade-in');
+
+      setTimeout(() => {
+        finalWelcomeText.classList.remove('fade-in');
+        finalWelcomeText.classList.add('fade-out');
+
+        setTimeout(() => {
+          finalWelcome.classList.add('hidden');
+          const watchData = document.getElementById('watchData');
+          watchData.classList.remove('hidden');
+          watchData.classList.add('fade-in');
+          updateTime();
+          setInterval(updateTime, 1000);
+        }, 1000);
+      }, 2000);
+    }
+  </script>
+
+
+</body>
+
+</html>
