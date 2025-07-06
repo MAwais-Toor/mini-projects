@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smartwatch Clock</title>
+  <title>MATsWatch - By Muhammad Awais Toor</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .fade-in {
@@ -143,6 +143,7 @@
         <div id="date" class="text-sm sm:text-base text-gray-300 font-light mt-1 tracking-wide uppercase">
           <!-- Date will be inserted here -->
         </div>
+        
       </div>
 
     </div>
@@ -157,7 +158,7 @@
   <script>
     function updateTime() {
       const now = new Date();
-      const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
       const date = now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
       document.getElementById('time').textContent = time;
       document.getElementById('date').textContent = date;
